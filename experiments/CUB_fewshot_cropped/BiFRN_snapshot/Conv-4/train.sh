@@ -3,7 +3,7 @@ python train.py \
     --opt sgd \
     --lr 1e-1 \
     --gamma 1e-1 \
-    --epoch 240 \
+    --epoch 10 \
     --stage 5 \
     --val_epoch 20 \
     --weight_decay 5e-4 \
