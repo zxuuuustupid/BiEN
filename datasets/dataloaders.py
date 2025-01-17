@@ -7,15 +7,17 @@ from copy import deepcopy
 from PIL import Image
 from . import samplers,transform_manager
 
+from functools import partial
 
-def get_dataset(data_path,is_training,transform_type,pre):
+
+def get_dataset(data_path, is_training, transform_type, pre):
+    image_loader_partial = partial(image_loader, is_training=is_training, transform_type=transform_type, pre=pre)
 
     dataset = datasets.ImageFolder(
         data_path,
-        loader = lambda x: image_loader(path=x,is_training=is_training,transform_type=transform_type,pre=pre))
-
+        loader=image_loader_partial  # 直接传递 `partial` 函数
+    )
     return dataset
-
 
 
 def meta_train_dataloader(data_path,way,shots,transform_type):
@@ -25,7 +27,7 @@ def meta_train_dataloader(data_path,way,shots,transform_type):
     loader = torch.utils.data.DataLoader(
         dataset,
         batch_sampler = samplers.meta_batchsampler(data_source=dataset,way=way,shots=shots),
-        num_workers = 3,
+        num_workers = 8,
         pin_memory = False)
 
     return loader
@@ -39,7 +41,7 @@ def meta_test_dataloader(data_path,way,shot,pre,transform_type=None,query_shot=1
     loader = torch.utils.data.DataLoader(
         dataset,
         batch_sampler = samplers.random_sampler(data_source=dataset,way=way,shot=shot,query_shot=query_shot,trial=trial),
-        num_workers = 3,
+        num_workers = 8,
         pin_memory = False)
 
     return loader
@@ -53,7 +55,7 @@ def normal_train_dataloader(data_path,batch_size,transform_type):
         dataset,
         batch_size = batch_size,
         shuffle = True,
-        num_workers = 3,
+        num_workers = 8,
         pin_memory = False,
         drop_last=True)
 
